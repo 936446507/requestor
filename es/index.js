@@ -1,8 +1,8 @@
 import RequestCore from './module/core';
 import AxiosRequest from './request/axios';
-class Api extends RequestCore {
+class Api {
     constructor(apiConfig, params = {}, ajaxHeaders = {}, debug = false, withCredentials = true) {
-        super(apiConfig, params, ajaxHeaders, AxiosRequest, debug, withCredentials);
+        return new RequestCore(apiConfig, params, ajaxHeaders, AxiosRequest, debug, withCredentials);
     }
 }
 export default Api;

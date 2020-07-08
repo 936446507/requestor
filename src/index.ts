@@ -3,7 +3,7 @@ import AxiosRequest from './request/axios';
 
 import { ApiConfig, ApiParams, ApiRequestHeaders } from './types';
 
-class Api extends RequestCore {
+class Api {
   constructor(
     apiConfig: ApiConfig,
     params: ApiParams = {},
@@ -11,7 +11,14 @@ class Api extends RequestCore {
     debug = false,
     withCredentials = true
   ) {
-    super(apiConfig, params, ajaxHeaders, AxiosRequest, debug, withCredentials);
+    return new RequestCore(
+      apiConfig,
+      params,
+      ajaxHeaders,
+      AxiosRequest,
+      debug,
+      withCredentials
+    );
   }
 }
 

@@ -1,8 +1,8 @@
 import RequestCore from './module/core';
 import TaroRequest from './request/taro';
-class Api extends RequestCore {
+class Api {
     constructor(apiConfig, params = {}, ajaxHeaders = {}, debug = false) {
-        super(apiConfig, params, ajaxHeaders, TaroRequest, debug);
+        return new RequestCore(apiConfig, params, ajaxHeaders, TaroRequest, debug);
     }
 }
 export default Api;

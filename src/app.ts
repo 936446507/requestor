@@ -60,6 +60,7 @@ const api = new BzAxios(config, {}, {});
 api['_defaultError'] = (data: any) => {
   console.log(data);
 };
+
 const result = api['api1'].POST();
 
 result

@@ -22,7 +22,7 @@ var RequestCore = function RequestCore(apiConfig, params, ajaxHeaders, requestor
     this.ajaxHeaders = ajaxHeaders;
     this.debug = debug;
     this.withCredentials = withCredentials;
-    this.request = this.handleRequestor(requestor, _this);
+    this.handleRequestor(requestor, _this);
     return this.createMethods(apiConfig, _this);
 };
 RequestCore.prototype.createMethods = function createMethods (config, _this) {
@@ -32,7 +32,7 @@ RequestCore.prototype.createMethods = function createMethods (config, _this) {
         for (var key in config) {
             var value = config[key];
             if (typeof value === 'string') {
-                this$1.createRequest(parent, key, value);
+                this$1.createRequest(_this, parent, key, value);
             }
             else {
                 if (!CheckUrlProperty(value)) {
@@ -41,7 +41,7 @@ RequestCore.prototype.createMethods = function createMethods (config, _this) {
                     scoop(value, parent[key]);
                 }
                 else {
-                    this$1.createRequest(parent, key, value.url, value.type);
+                    this$1.createRequest(_this, parent, key, value.url, value.type);
                 }
             }
         }
@@ -49,14 +49,12 @@ RequestCore.prototype.createMethods = function createMethods (config, _this) {
     scoop(config, _this);
     return _this;
 };
-RequestCore.prototype.createRequest = function createRequest (obj, key, url, type) {
-        var this$1 = this;
+RequestCore.prototype.createRequest = function createRequest (_this, obj, key, url, type) {
         if ( type === void 0 ) type = 'get';
 
     var requestMethod = function (method) {
         return function (config, requestorConfig) {
-            console.log(this$1.request);
-            return this$1.request['_requestProxy'](url, method, config, requestorConfig);
+            return _this['_requestProxy'](url, method, config, requestorConfig);
         };
     };
     var types = [];

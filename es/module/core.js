@@ -13,7 +13,7 @@ class RequestCore {
         this.ajaxHeaders = ajaxHeaders;
         this.debug = debug;
         this.withCredentials = withCredentials;
-        this.request = this.handleRequestor(requestor, _this);
+        this.handleRequestor(requestor, _this);
         return this.createMethods(apiConfig, _this);
     }
     createMethods(config, _this) {
@@ -21,7 +21,7 @@ class RequestCore {
             for (let key in config) {
                 const value = config[key];
                 if (typeof value === 'string') {
-                    this.createRequest(parent, key, value);
+                    this.createRequest(_this, parent, key, value);
                 }
                 else {
                     if (!CheckUrlProperty(value)) {
@@ -30,7 +30,7 @@ class RequestCore {
                         scoop(value, parent[key]);
                     }
                     else {
-                        this.createRequest(parent, key, value.url, value.type);
+                        this.createRequest(_this, parent, key, value.url, value.type);
                     }
                 }
             }
@@ -38,11 +38,10 @@ class RequestCore {
         scoop(config, _this);
         return _this;
     }
-    createRequest(obj, key, url, type = 'get') {
+    createRequest(_this, obj, key, url, type = 'get') {
         const requestMethod = (method) => {
             return (config, requestorConfig) => {
-                console.log(this.request);
-                return this.request['_requestProxy'](url, method, config, requestorConfig);
+                return _this['_requestProxy'](url, method, config, requestorConfig);
             };
         };
         const types = [];

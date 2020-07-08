@@ -24,7 +24,7 @@ function CheckUrlProperty(
 }
 
 class RequestCore {
-  protected request: this;
+  // protected request: this;
   protected params: ApiParams = {};
   protected ajaxHeaders: ApiRequestHeaders = {};
   protected debug: boolean = false;
@@ -44,7 +44,8 @@ class RequestCore {
     this.ajaxHeaders = ajaxHeaders;
     this.debug = debug;
     this.withCredentials = withCredentials;
-    this.request = this.handleRequestor(requestor, _this);
+    // this.request = this.handleRequestor(requestor, _this);
+    this.handleRequestor(requestor, _this);
 
     return this.createMethods(apiConfig, _this);
   }
@@ -53,13 +54,13 @@ class RequestCore {
       for (let key in config) {
         const value = config[key];
         if (typeof value === 'string') {
-          this.createRequest(parent, key, value);
+          this.createRequest(_this, parent, key, value);
         } else {
           if (!CheckUrlProperty(value)) {
             if (!parent[key]) parent[key] = {};
             scoop(value, parent[key]);
           } else {
-            this.createRequest(parent, key, value.url, value.type);
+            this.createRequest(_this, parent, key, value.url, value.type);
           }
         }
       }
@@ -68,6 +69,7 @@ class RequestCore {
     return _this;
   }
   protected createRequest(
+    _this: this,
     obj: RequestCore,
     key: string,
     url: string,
@@ -75,13 +77,7 @@ class RequestCore {
   ) {
     const requestMethod = (method: ApiType) => {
       return (config: ApiMethodConfig, requestorConfig: ApiRequestorConfig) => {
-        console.log(this.request);
-        return this.request['_requestProxy'](
-          url,
-          method,
-          config,
-          requestorConfig
-        );
+        return _this['_requestProxy'](url, method, config, requestorConfig);
       };
     };
     const types: ApiType[] = [];

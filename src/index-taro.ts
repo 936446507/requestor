@@ -3,14 +3,14 @@ import TaroRequest from './request/taro';
 
 import { ApiConfig, ApiParams, ApiRequestHeaders } from './types';
 
-class Api extends RequestCore {
+class Api {
   constructor(
     apiConfig: ApiConfig,
     params: ApiParams = {},
     ajaxHeaders: ApiRequestHeaders = {},
     debug = false
   ) {
-    super(apiConfig, params, ajaxHeaders, TaroRequest, debug);
+    return new RequestCore(apiConfig, params, ajaxHeaders, TaroRequest, debug);
   }
 }
 
