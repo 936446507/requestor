@@ -1,1 +1,296 @@
-import t from"@tarojs/taro";function r(t){return function(t,r){return Object.prototype.toString.call(t).indexOf(r)>=0}(t,"Array")}function e(t){return void 0!==t.url}var o=function t(r,e,o,n,a,i){void 0===e&&(e={}),void 0===o&&(o={}),void 0===a&&(a=!1),this.params={},this.ajaxHeaders={},this.debug=!1,this.withCredentials=!0;var s=Object.create(t.prototype);return this.params=e,this.ajaxHeaders=o,this.debug=a,this.withCredentials=i,this.handleRequestor(n,s),this.createMethods(r,s)};o.prototype.createMethods=function(t,r){var o=this,n=function(t,a){for(var i in t){var s=t[i];"string"==typeof s?o.createRequest(r,a,i,s):e(s)?o.createRequest(r,a,i,s.url,s.type):(a[i]||(a[i]={}),n(s,a[i]))}};return n(t,r),r},o.prototype.createRequest=function(t,e,o,n,a){void 0===a&&(a="get");var i=function(r){return function(e,o){return t._requestProxy(n,r,e,o)}},s=[];r(a)?s.push.apply(s,a):s.push(a);var u=s.some((function(t){return/get/gi.test(t)}));u&&(e[o]=i("get")),u||e[o]||(e[o]={}),s.forEach((function(t){e[o][t.toUpperCase()]=i(t)}))},o.prototype.handleRequestor=function(t,r){var e,o=this.params,n=this.ajaxHeaders,a=this.debug,i=this.withCredentials;switch(t.name){case"AxiosRequest":e=new t(o,n,a,i);break;case"TaroRequest":e=new t(o,n,a);break;default:e=new t(o,n,a)}for(var s in["_requestProxy","_res","_defaultError","_networkError"].forEach((function(r){Object.defineProperty(e,r,{get:function(){return t.prototype[r]},enumerable:!0})})),e)"constructor"!==s&&(r[s]=e[s]);return r};var n=function(t){void 0===t&&(t=!1),this.debug=t};n.prototype._getUrlParams=function(t){var r=t,e=r.indexOf("?"),o={};return-1!==e?((r=r.substr(e+1)).split("&").forEach((function(t){var r=t.split("=");o[r[0]]=r[1]})),o):o},n.prototype._setUrlParam=function(t,r){if(void 0===r&&(r={}),!t)return t;var e=Object.assign(this._getUrlParams(t),r),o=t.indexOf("?");return(-1!==o?t.substring(0,o):t)+"?"+Object.keys(e).map((function(t){return t+"="+r[t]})).join("&")},n.prototype._shunt=function(){for(var t=this,r=[],e=arguments.length;e--;)r[e]=arguments[e];return function(){for(var e=[],o=arguments.length;o--;)e[o]=arguments[o];r.forEach((function(r){"[object Function]"===Object.prototype.toString.call(r)&&r.apply(t,e)}))}},n.prototype._shuntAsync=function(){for(var t=[],r=arguments.length;r--;)t[r]=arguments[r];return function(){for(var r=[],e=arguments.length;e--;)r[e]=arguments[e];var o=0,n=function(){"[object Function]"===Object.prototype.toString.call(t[o])&&t[o].apply(t,r.concat((function(){(o+=1)<t.length&&n()})))};n()}},n.prototype._res=function(t,r,e,o,n){this.debug&&(console.log(t),this.debug=!1),0===t.error_code?r&&r(t):e?e(t):this._defaultError(t,"data"),o&&o(t),n&&n(t)},n.prototype._defaultError=function(t,r){return void 0===r&&(r="networkError"),"data"===r?console.log("格式异常："+(t&&"string"==typeof t?t:t.error_message)):console.error(t)},n.prototype._networkError=function(t,r){var e=this;return function(o){throw e._defaultError(o),r&&r(o),t&&t(o),new Error(o)}};var a=function(r){function e(t,e,o){void 0===o&&(o=!1),r.call(this,o),this.params=t,this.ajaxHeaders=e}return r&&(e.__proto__=r),e.prototype=Object.create(r&&r.prototype),e.prototype.constructor=e,e.prototype._requestProxy=function(r,e,o,n){var a=this;void 0===e&&(e="get"),void 0===o&&(o={}),void 0===n&&(n={});var i=Object.assign({},this.params,o.data),s={"content-type":/form/gi.test(e)?"application/x-www-form-urlencoded":"application/json"},u=o.type||e,c={url:r,method:/form/gi.test(u)?"POST":u.toUpperCase(),header:s,data:i,dataType:"json"};for(var p in this.ajaxHeaders&&Object.assign(c.header,this.ajaxHeaders),n)Object.prototype.hasOwnProperty.call(n,p)&&(c[p]=n[p]);return new Promise((function(r,e){t.request(c).then((function(t){var e=o.success,n=o.error,i=o.complete,s=o.requestComplete;a._res(t.data,e,n,i,s),r(t)})).catch((function(t){var r=o.networkError,n=o.requestComplete;return e(t),a._networkError(r,n)}))}))},e}(n);export default function(t,r,e,n){return void 0===r&&(r={}),void 0===e&&(e={}),void 0===n&&(n=!1),new o(t,r,e,a,n)}
+import Taro from '@tarojs/taro';
+
+function checkType(data, type) {
+    return Object.prototype.toString.call(data).indexOf(type) >= 0;
+}
+function isArray(data) {
+    return checkType(data, 'Array');
+}
+
+function CheckUrlProperty(config) {
+    return config.url !== undefined;
+}
+var RequestCore = function RequestCore(apiConfig, params, ajaxHeaders, requestor, debug, withCredentials) {
+    if ( params === void 0 ) params = {};
+    if ( ajaxHeaders === void 0 ) ajaxHeaders = {};
+    if ( debug === void 0 ) debug = false;
+
+    this.params = {};
+    this.ajaxHeaders = {};
+    this.debug = false;
+    this.withCredentials = true;
+    var _this = Object.create(RequestCore.prototype);
+    this.params = params;
+    this.ajaxHeaders = ajaxHeaders;
+    this.debug = debug;
+    this.withCredentials = withCredentials;
+    this.handleRequestor(requestor, _this);
+    return this.createMethods(apiConfig, _this);
+};
+RequestCore.prototype.createMethods = function createMethods (config, _this) {
+        var this$1 = this;
+
+    var scoop = function (config, parent) {
+        for (var key in config) {
+            var value = config[key];
+            if (typeof value === 'string') {
+                this$1.createRequest(_this, parent, key, value);
+            }
+            else {
+                if (!CheckUrlProperty(value)) {
+                    if (!parent[key])
+                        { parent[key] = {}; }
+                    scoop(value, parent[key]);
+                }
+                else {
+                    this$1.createRequest(_this, parent, key, value.url, value.type);
+                }
+            }
+        }
+    };
+    scoop(config, _this);
+    return _this;
+};
+RequestCore.prototype.createRequest = function createRequest (_this, obj, key, url, type) {
+        if ( type === void 0 ) type = 'get';
+
+    var requestMethod = function (method) {
+        return function (config, requestorConfig) {
+            return _this['_requestProxy'](url, method, config, requestorConfig);
+        };
+    };
+    var types = [];
+    if (isArray(type)) {
+        types.push.apply(types, type);
+    }
+    else {
+        types.push(type);
+    }
+    var isHadGetMethod = types.some(function (method) { return /get/gi.test(method); });
+    if (isHadGetMethod)
+        { obj[key] = requestMethod('get'); }
+    if (!isHadGetMethod && !obj[key])
+        { obj[key] = {}; }
+    types.forEach(function (method) {
+        obj[key][method.toUpperCase()] = requestMethod(method);
+    });
+};
+RequestCore.prototype.handleRequestor = function handleRequestor (requestor, _this) {
+    var methodKeys = [
+        '_requestProxy',
+        '_res',
+        '_defaultError',
+        '_networkError' ];
+    var ref = this;
+        var params = ref.params;
+        var ajaxHeaders = ref.ajaxHeaders;
+        var debug = ref.debug;
+        var withCredentials = ref.withCredentials;
+    var request;
+    switch (requestor.name) {
+        case 'AxiosRequest':
+            request = new requestor(params, ajaxHeaders, debug, withCredentials);
+            break;
+        case 'TaroRequest':
+            request = new requestor(params, ajaxHeaders, debug);
+            break;
+        default:
+            request = new requestor(params, ajaxHeaders, debug);
+    }
+    methodKeys.forEach(function (method) {
+        Object.defineProperty(request, method, {
+            get: function () { return requestor.prototype[method]; },
+            enumerable: true,
+        });
+    });
+    for (var key in request) {
+        if (key !== 'constructor') {
+            _this[key] = request[key];
+        }
+    }
+    return _this;
+};
+
+function checkResponsecode(res) {
+    return res.error_code === 0;
+}
+var Handler = function Handler(debug) {
+    if ( debug === void 0 ) debug = false;
+
+    this.debug = debug;
+};
+Handler.prototype._getUrlParams = function _getUrlParams (url) {
+    var href = url;
+    var pos = href.indexOf('?');
+    var params = {};
+    if (pos !== -1) {
+        href = href.substr(pos + 1);
+        href.split('&').forEach(function (item) {
+            var data = item.split('=');
+            params[data[0]] = data[1];
+        });
+        return params;
+    }
+    return params;
+};
+Handler.prototype._setUrlParam = function _setUrlParam (url, obj) {
+        if ( obj === void 0 ) obj = {};
+
+    if (!url)
+        { return url; }
+    var params = Object.assign(this._getUrlParams(url), obj);
+    var pos = url.indexOf('?');
+    var isHadParams = pos !== -1;
+    var href = isHadParams ? url.substring(0, pos) : url;
+    return (href +
+        '?' +
+        Object.keys(params)
+            .map(function (key) { return (key + "=" + (obj[key])); })
+            .join('&'));
+};
+Handler.prototype._shunt = function _shunt () {
+        var this$1 = this;
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+    return function () {
+            var resArgs = [], len = arguments.length;
+            while ( len-- ) resArgs[ len ] = arguments[ len ];
+
+        args.forEach(function (fn) {
+            if (Object.prototype.toString.call(fn) === '[object Function]') {
+                fn.apply(this$1, resArgs);
+            }
+        });
+    };
+};
+Handler.prototype._shuntAsync = function _shuntAsync () {
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+    return function () {
+            var resArgs = [], len = arguments.length;
+            while ( len-- ) resArgs[ len ] = arguments[ len ];
+
+        var index = 0;
+        var loop = function () {
+            if (Object.prototype.toString.call(args[index]) === '[object Function]') {
+                args[index].apply(args, resArgs.concat(function () {
+                    index += 1;
+                    if (index < args.length) {
+                        loop();
+                    }
+                }));
+            }
+        };
+        loop();
+    };
+};
+Handler.prototype._res = function _res (data, success, error, complete, requestComplete) {
+    if (this.debug) {
+        console.log(data);
+        this.debug = false;
+    }
+    if (checkResponsecode(data)) {
+        success && success(data);
+    }
+    else if (error) {
+        error(data);
+    }
+    else {
+        this._defaultError(data, 'data');
+    }
+    complete && complete(data);
+    requestComplete && requestComplete(data);
+};
+Handler.prototype._defaultError = function _defaultError (data, type) {
+        if ( type === void 0 ) type = 'networkError';
+
+    if (type === 'data') {
+        return console.log(("格式异常：" + (data && typeof data === 'string' ? data : data.error_message)));
+    }
+    return console.error(data);
+};
+Handler.prototype._networkError = function _networkError (networkError, requestComplete) {
+        var this$1 = this;
+
+    return function (err) {
+        this$1._defaultError(err);
+        requestComplete && requestComplete(err);
+        networkError && networkError(err);
+        throw new Error(err);
+    };
+};
+
+var TaroRequest = /*@__PURE__*/(function (Handler) {
+    function TaroRequest(params, ajaxHeaders, debug) {
+        if ( debug === void 0 ) debug = false;
+
+        Handler.call(this, debug);
+        this.params = params;
+        this.ajaxHeaders = ajaxHeaders;
+    }
+
+    if ( Handler ) TaroRequest.__proto__ = Handler;
+    TaroRequest.prototype = Object.create( Handler && Handler.prototype );
+    TaroRequest.prototype.constructor = TaroRequest;
+    TaroRequest.prototype._requestProxy = function _requestProxy (url, type, config, requestorConfig) {
+        var this$1 = this;
+        if ( type === void 0 ) type = 'get';
+        if ( config === void 0 ) config = {};
+        if ( requestorConfig === void 0 ) requestorConfig = {};
+
+        var apiData = Object.assign({}, this.params, config.data);
+        var requestHeader = {
+            'content-type': /form/gi.test(type)
+                ? 'application/x-www-form-urlencoded'
+                : 'application/json',
+        };
+        var requestType = config.type || type;
+        var apiParams = {
+            url: url,
+            method: (/form/gi.test(requestType)
+                ? 'POST'
+                : requestType.toUpperCase()),
+            header: requestHeader,
+            data: apiData,
+            dataType: 'json',
+        };
+        if (this.ajaxHeaders)
+            { Object.assign(apiParams.header, this.ajaxHeaders); }
+        for (var key in requestorConfig) {
+            if (Object.prototype.hasOwnProperty.call(requestorConfig, key)) {
+                apiParams[key] = requestorConfig[key];
+            }
+        }
+        return new Promise(function (resolve, reject) {
+            Taro.request(apiParams)
+                .then(function (res) {
+                var success = config.success;
+                var error = config.error;
+                var complete = config.complete;
+                var requestComplete = config.requestComplete;
+                this$1._res(res.data, success, error, complete, requestComplete);
+                resolve(res);
+            })
+                .catch(function (error) {
+                var networkError = config.networkError;
+                var requestComplete = config.requestComplete;
+                reject(error);
+                return this$1._networkError(networkError, requestComplete);
+            });
+        });
+    };
+
+    return TaroRequest;
+}(Handler));
+
+var Api = function Api(apiConfig, params, ajaxHeaders, debug) {
+    if ( params === void 0 ) params = {};
+    if ( ajaxHeaders === void 0 ) ajaxHeaders = {};
+    if ( debug === void 0 ) debug = false;
+
+    return new RequestCore(apiConfig, params, ajaxHeaders, TaroRequest, debug);
+};
+
+export default Api;

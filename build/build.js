@@ -22,7 +22,7 @@ const buildConfigInfo = {
       file: resolveFile(`dist/${name}-core.esm.js`),
       format: 'es',
     },
-    plugins: [terser()],
+    // plugins: [terser()],
   },
   axios: {
     input: resolveFile('src/index.ts'),
@@ -30,7 +30,7 @@ const buildConfigInfo = {
       file: resolveFile(`dist/${name}.esm.js`),
       format: 'es',
     },
-    plugins: [terser()],
+    // plugins: [terser()],
   },
   taro: {
     input: resolveFile('src/index-taro.ts'),
@@ -38,7 +38,7 @@ const buildConfigInfo = {
       file: resolveFile(`dist/${name}-taro.esm.js`),
       format: 'es',
     },
-    plugins: [terser()],
+    // plugins: [terser()],
   },
 };
 

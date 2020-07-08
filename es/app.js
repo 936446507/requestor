@@ -1,4 +1,4 @@
-import BzAxios from '../dist/bz-axios.esm.js';
+import BzAxios from './index';
 import axios from 'axios';
 import { Request, } from './types';
 const config = {
@@ -36,4 +36,11 @@ const api = new BzAxios(config, {}, {});
 api['_defaultError'] = (data) => {
     console.log(data);
 };
-console.log('api', api, api['api1']);
+const result = api['api1'].POST();
+result
+    .then((res) => {
+    console.log(res);
+})
+    .catch((err) => {
+    console.log(err);
+});

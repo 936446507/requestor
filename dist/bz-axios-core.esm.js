@@ -1,1 +1,112 @@
-function e(e){return function(e,t){return Object.prototype.toString.call(e).indexOf(t)>=0}(e,"Array")}function t(e){return void 0!==e.url}var r=function e(t,r,n,o,a,i){void 0===r&&(r={}),void 0===n&&(n={}),void 0===a&&(a=!1),this.params={},this.ajaxHeaders={},this.debug=!1,this.withCredentials=!0;var s=Object.create(e.prototype);return this.params=r,this.ajaxHeaders=n,this.debug=a,this.withCredentials=i,this.handleRequestor(o,s),this.createMethods(t,s)};r.prototype.createMethods=function(e,r){var n=this,o=function(e,a){for(var i in e){var s=e[i];"string"==typeof s?n.createRequest(r,a,i,s):t(s)?n.createRequest(r,a,i,s.url,s.type):(a[i]||(a[i]={}),o(s,a[i]))}};return o(e,r),r},r.prototype.createRequest=function(t,r,n,o,a){void 0===a&&(a="get");var i=function(e){return function(r,n){return t._requestProxy(o,e,r,n)}},s=[];e(a)?s.push.apply(s,a):s.push(a);var u=s.some((function(e){return/get/gi.test(e)}));u&&(r[n]=i("get")),u||r[n]||(r[n]={}),s.forEach((function(e){r[n][e.toUpperCase()]=i(e)}))},r.prototype.handleRequestor=function(e,t){var r,n=this.params,o=this.ajaxHeaders,a=this.debug,i=this.withCredentials;switch(e.name){case"AxiosRequest":r=new e(n,o,a,i);break;case"TaroRequest":r=new e(n,o,a);break;default:r=new e(n,o,a)}for(var s in["_requestProxy","_res","_defaultError","_networkError"].forEach((function(t){Object.defineProperty(r,t,{get:function(){return e.prototype[t]},enumerable:!0})})),r)"constructor"!==s&&(t[s]=r[s]);return t};export default r;
+function checkType(data, type) {
+    return Object.prototype.toString.call(data).indexOf(type) >= 0;
+}
+function isArray(data) {
+    return checkType(data, 'Array');
+}
+
+function CheckUrlProperty(config) {
+    return config.url !== undefined;
+}
+var RequestCore = function RequestCore(apiConfig, params, ajaxHeaders, requestor, debug, withCredentials) {
+    if ( params === void 0 ) params = {};
+    if ( ajaxHeaders === void 0 ) ajaxHeaders = {};
+    if ( debug === void 0 ) debug = false;
+
+    this.params = {};
+    this.ajaxHeaders = {};
+    this.debug = false;
+    this.withCredentials = true;
+    var _this = Object.create(RequestCore.prototype);
+    this.params = params;
+    this.ajaxHeaders = ajaxHeaders;
+    this.debug = debug;
+    this.withCredentials = withCredentials;
+    this.handleRequestor(requestor, _this);
+    return this.createMethods(apiConfig, _this);
+};
+RequestCore.prototype.createMethods = function createMethods (config, _this) {
+        var this$1 = this;
+
+    var scoop = function (config, parent) {
+        for (var key in config) {
+            var value = config[key];
+            if (typeof value === 'string') {
+                this$1.createRequest(_this, parent, key, value);
+            }
+            else {
+                if (!CheckUrlProperty(value)) {
+                    if (!parent[key])
+                        { parent[key] = {}; }
+                    scoop(value, parent[key]);
+                }
+                else {
+                    this$1.createRequest(_this, parent, key, value.url, value.type);
+                }
+            }
+        }
+    };
+    scoop(config, _this);
+    return _this;
+};
+RequestCore.prototype.createRequest = function createRequest (_this, obj, key, url, type) {
+        if ( type === void 0 ) type = 'get';
+
+    var requestMethod = function (method) {
+        return function (config, requestorConfig) {
+            return _this['_requestProxy'](url, method, config, requestorConfig);
+        };
+    };
+    var types = [];
+    if (isArray(type)) {
+        types.push.apply(types, type);
+    }
+    else {
+        types.push(type);
+    }
+    var isHadGetMethod = types.some(function (method) { return /get/gi.test(method); });
+    if (isHadGetMethod)
+        { obj[key] = requestMethod('get'); }
+    if (!isHadGetMethod && !obj[key])
+        { obj[key] = {}; }
+    types.forEach(function (method) {
+        obj[key][method.toUpperCase()] = requestMethod(method);
+    });
+};
+RequestCore.prototype.handleRequestor = function handleRequestor (requestor, _this) {
+    var methodKeys = [
+        '_requestProxy',
+        '_res',
+        '_defaultError',
+        '_networkError' ];
+    var ref = this;
+        var params = ref.params;
+        var ajaxHeaders = ref.ajaxHeaders;
+        var debug = ref.debug;
+        var withCredentials = ref.withCredentials;
+    var request;
+    switch (requestor.name) {
+        case 'AxiosRequest':
+            request = new requestor(params, ajaxHeaders, debug, withCredentials);
+            break;
+        case 'TaroRequest':
+            request = new requestor(params, ajaxHeaders, debug);
+            break;
+        default:
+            request = new requestor(params, ajaxHeaders, debug);
+    }
+    methodKeys.forEach(function (method) {
+        Object.defineProperty(request, method, {
+            get: function () { return requestor.prototype[method]; },
+            enumerable: true,
+        });
+    });
+    for (var key in request) {
+        if (key !== 'constructor') {
+            _this[key] = request[key];
+        }
+    }
+    return _this;
+};
+
+export default RequestCore;
